@@ -281,19 +281,20 @@ public final class GuiController {
 			try {
 				CreateResources.saveConfigFile(configOutFile, config);
 			} catch (IOException e) {
-				System.err.println("Error while saving configuration file [" + configOutFile + "]: " + e.getMessage());
+				logger.error("Error while saving configuration file [" + configOutFile + "]: " + e.getMessage());
 			}
 		}
 		// delete temp files
 		try {
 			FileUtils.deleteDirectory(config.getTmpFile());
 		} catch (Exception e) {
-			System.err.println("could not delete temporal folder: " + e.getMessage());
+			logger.error("Could not delete temporal folder: " + e.getMessage());
 		}
 		if (errors) {
 			// error code for notifying that there were errors.
 			System.exit(1);
 		} else {
+			//logger.info("Documentation generated successfully");
 			System.out.println("Documentation generated successfully");
 		}
 	}
@@ -484,11 +485,17 @@ public final class GuiController {
 
 	public static void main(String[] args) {
 		GuiController guiController;
-		if (args.length > 0) {
-			guiController = new GuiController(args);
-		} else {
-			guiController = new GuiController();
-		}
+                try{
+                    if (args.length > 0) {
+                            guiController = new GuiController(args);
+                    } else {
+                           guiController = new GuiController();
+                    }
+                }catch(Exception e){
+                    logger.error("It looks like WIDOCO could not run in your machine. "
+                            + "Please check that your Java version is 1.8 or higher. "
+                            + "Java version found: "+System.getProperty("java.version"));
+                }
 	}
 
 }

@@ -37,6 +37,7 @@ import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
 import org.semanticweb.owlapi.formats.TurtleDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.rdf.rdfxml.renderer.OWLOntologyXMLNamespaceManager;
 import widoco.entities.Agent;
 import widoco.entities.Ontology;
 
@@ -70,11 +71,12 @@ public class CreateResources {
 		logger.info("- ontology IRI: " + c.getOntologyURI());
 		lodeContent = LODEGeneration.getLODEhtml(c, lodeResources);
 		LODEParser lode = new LODEParser(lodeContent, c, languageFile);
+                
 		if (c.isCreateHTACCESS()) {
-			File fOut = new File(folderOut);
-			if (!fOut.exists()) {
-				fOut.mkdirs();
-			}
+                        File fOut = new File(folderOut);
+                        if (!fOut.exists()) {
+                                fOut.mkdirs();
+                        }
 			createHTACCESSFile(folderOut + File.separator + ".htaccess", c);
 		}
 		// slash ontologies require a special type of redirection
@@ -88,8 +90,7 @@ public class CreateResources {
 			abs = createAbstractSection(folderOut + File.separator + "sections", c, languageFile);
 		}
 		if (c.isIncludeIntroduction()) {
-                    //to do
-			intro = createIntroductionSection(folderOut + File.separator + "sections", lode.getNamespaceDeclarations(), c,
+			intro = createIntroductionSection(folderOut + File.separator + "sections", c,
 					languageFile);
 		}
 		if (c.isIncludeOverview()) {
@@ -114,7 +115,7 @@ public class CreateResources {
 					&& !"".equals(c.getMainOntology().getPreviousVersion())) {
 				changeLog = createChangeLog(folderOut + File.separator + "sections", c, languageFile);
 			} else {
-                                logger.info("No previous version provided. No changelog produced!");
+            	logger.info("No previous version provided. No changelog produced!");
 			}
 		}
 		if (c.isCreateWebVowlVisualization()) {
@@ -144,7 +145,7 @@ public class CreateResources {
 		c.setUseW3CStyle(true);
 		createFolderStructure(folderOut, c, l);
 		createAbstractSection(folderOut + File.separator + "sections", c, l);
-		createIntroductionSection(folderOut + File.separator + "sections", null, c, l);
+		createIntroductionSection(folderOut + File.separator + "sections", c, l);
 		createDescriptionSection(folderOut + File.separator + "sections", c, l);
 		createReferencesSection(folderOut + File.separator + "sections", c, l);
 		createIndexDocument(folderOut, c, null, l);
@@ -231,9 +232,9 @@ public class CreateResources {
             return textToWrite;
 	}
 
-	private static String createIntroductionSection(String path, HashMap<String, String> nsDecl, Configuration c,
-			Properties lang) {
+	private static String createIntroductionSection(String path, Configuration c,Properties lang) {
             String textToWrite;
+            HashMap<String,String> nsDecl = c.getNamespaceDeclarations();
             if ((c.getIntroductionPath() != null) && (!"".equals(c.getIntroductionPath()))) {
                 textToWrite = WidocoUtils.readExternalResource(c.getIntroductionPath());
             } else {
@@ -404,7 +405,7 @@ public class CreateResources {
 		File f = new File(s);
                 if(!c.isIncludeAllSectionsInOneDocument()){
                     File sections = new File(s + File.separator + "sections");
-                    sections.mkdir();
+                    sections.mkdirs();
                 }
 		File img = new File(s + File.separator + "img");
 		File provenance = new File(s + File.separator + "provenance");
